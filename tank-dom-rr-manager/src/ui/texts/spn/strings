@@ -1,0 +1,3 @@
+[app]
+displayname = "TANK DOM定制版RR管理器"
+description = "Administre la configuración del bootloader RR y actualice RR directamente desde DSM."

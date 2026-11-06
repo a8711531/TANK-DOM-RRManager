@@ -1,0 +1,55 @@
+name: Sync upstream RRManager
+
+# Keeps an eye on RROrg/RRManager without silently overwriting the customised
+# tree. Every week (or on demand) this pushes a pristine upstream snapshot to
+# the "upstream-snapshot" branch and opens/updates a draft PR so the diff can
+# be reviewed. Do NOT merge that PR directly: this fork renames the package,
+# changes the runtime user and rewrites the update-source logic, so upstream
+# changes must be cherry-picked by hand (an automatic merge previously broke
+# the rrmdo privilege check and emptied the addons/modules views).
+on:
+  schedule:
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream main
+        run: |
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream https://github.com/RROrg/RRManager.git
+          git fetch upstream main
+
+      - name: Publish upstream snapshot
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          BRANCH=upstream-snapshot
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH" upstream/main
+          git push --force origin "$BRANCH"
+
+          if gh pr list --head "$BRANCH" --state open --json number \
+               | grep -q '"number"'; then
+            echo "Draft PR already open, branch refreshed."
+          else
+            gh pr create \
+              --head "$BRANCH" \
+              --base main \
+              --draft \
+              --title "chore: upstream RRManager snapshot (review only)" \
+              --body "Automated weekly snapshot of RROrg/RRManager main. This PR is for reviewing upstream changes only - DO NOT merge it into the customised tree. Cherry-pick the relevant commits instead, then re-run the package build and verify the privilege user is still sc-rr-manager."
+          fi

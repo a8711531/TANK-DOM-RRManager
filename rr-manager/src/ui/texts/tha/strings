@@ -1,3 +1,0 @@
-[app]
-displayname = "RR Manager"
-description = "จัดการการตั้งค่า RR bootloader และอัปเดต RR ได้โดยตรงจาก DSM"

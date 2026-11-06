@@ -1,0 +1,23 @@
+{
+    "tank-dom-rr-manager.js": {
+        "TANK.DOMRRManager.Application": {
+            "type": "app",
+            "title": "app:displayname",
+            "version": "1.0",
+            "icon": "images/tank-dom-rr-manager-{0}.png",
+            "texts": "texts",
+            "allowMultiInstance": false,
+            "allUsers": false,
+            "appWindow": "TANK.DOMRRManager.AppWindow",
+            "depend": [
+                "TANK.DOMRRManager.AppWindow"
+            ]
+        },
+        "TANK.DOMRRManager.AppWindow": {
+            "type": "lib",
+            "title": "app:displayname",
+            "icon": "images/tank-dom-rr-manager-{0}.png",
+            "texts": "texts"
+        }
+    }
+}

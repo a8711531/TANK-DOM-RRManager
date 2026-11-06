@@ -1,0 +1,102 @@
+# TANK DOM定制版RR管理器 / 更新源配置示例 (branch: feat/custom-update-source)
+#
+# 使用方法（SSH 登录 DSM 后）：
+#   cp /var/packages/tank-dom-rr-manager/var/update-source.conf.example \
+#      /var/packages/tank-dom-rr-manager/var/update-source.conf
+#   编辑 update-source.conf，取消所需行的注释。
+#
+# 本文件是纯 shell 脚本，会在 tank-dom-rr-manager-lib.sh 应用默认值之前被 source。
+# 默认值形如 ${VAR:-default}，因此这里设置过的变量优先；未设置的保持默认。
+# DSM 7 会把包内 var/ 同步到 /var/packages/<包名>/var（即 /volume1/@appdata/...），
+# 不是 target/var；该目录在套件升级时保留。也可通过 UPDATE_SOURCE_CONF 指定别处。
+#
+# 默认策略：GitHub 为主源；仅当主源取不到版本或下载不到升级包时，
+# 自动降级到自建镜像（ky.mi-d.cn）。不写任何配置即按此策略运行。
+
+# ---- 主源（GitHub）--------------------------------------------------------
+# 想整体换源时改根地址即可，下面 3 个端点会自动派生：
+#   <ROOT>/releases/latest           检查最新版本（302 重定向取末段为版本号）
+#   <ROOT>/releases/download/<tag>/  下载升级包
+#   <ROOT>/tags                     预发布版本列表
+# RR_RELEASE_REPO_URL="https://github.com/RROrg/rr"
+# RRM_RELEASE_REPO_URL="https://github.com/RROrg/RRManager"
+# 注意：定制版与上游是不同的 DSM 套件，自更新必须指向你自己的发布仓库，
+# 否则会把原版 RR Manager 装上来覆盖定制版。默认资产名前缀可改：
+# RRM_RELEASE_ASSET_PREFIX="tank-dom-rr-manager_noarch-dsm7_"
+# 也可单独覆盖某个端点（目录结构与 GitHub 不一致时）：
+# RR_RELEASE_LATEST_URL="https://mirror.example.com/rr/releases/latest"
+# RR_RELEASE_DOWNLOAD_BASE_URL="https://mirror.example.com/rr/files"
+# RR_RELEASE_TAGS_URL="https://mirror.example.com/rr/tags"
+# RRM_RELEASE_LATEST_URL="https://mirror.example.com/rrm/releases/latest"
+# RRM_RELEASE_DOWNLOAD_BASE_URL="https://mirror.example.com/rrm/files"
+# PRERELEASE="false"
+
+# ---- 备源（自建镜像 / 文件列表站）------------------------------------------
+# 主源不可达时启用。设为 false 可完全关闭降级，只走 GitHub。
+# RR_FALLBACK_ENABLED="true"
+#
+# LIST_URL 是 HTML 目录列表页，页面中需出现形如 updateall-26.9.0.zip 的
+# 文件名；程序用 grep 提取并按 sort -rV 取最大版本号。
+# RR_FALLBACK_LIST_URL="https://ky.mi-d.cn/?path=TANK%E5%AE%9A%E5%88%B6%E7%89%88RR%E7%BE%A4%E6%99%96%E5%BC%95%E5%AF%BC%2Fupdateall"
+#
+# DOWNLOAD_PREFIX 直接拼接资产文件名，例如
+#   ...%2Fupdateall%2F + updateall-26.9.0.zip
+# 站点会 302 到真实静态文件；程序先 HEAD 探测成功才会采用该地址。
+# 路径中的中文与 + 号必须预先 URL 编码。
+# RR_FALLBACK_DOWNLOAD_PREFIX="https://ky.mi-d.cn/?download=TANK%E5%AE%9A%E5%88%B6%E7%89%88RR%E7%BE%A4%E6%99%96%E5%BC%95%E5%AF%BC%2Fupdateall%2F"
+#
+# TANK DOM定制版RR管理器 自身升级的备源默认关闭（镜像目前只放 RR 升级包）。
+# 若镜像也托管 tank-dom-rr-manager_noarch-dsm7_<tag>.spk，可打开并填两个地址。
+# RRM_FALLBACK_ENABLED="false"
+# RRM_FALLBACK_LIST_URL=""
+# RRM_FALLBACK_DOWNLOAD_PREFIX=""
+#
+# 可选：把 UI 上的发行说明链接改为镜像列表页（默认仍指向 GitHub tag 页）。
+# RR_RELEASE_HTML_URL="https://ky.mi-d.cn/?path=TANK%E5%AE%9A%E5%88%B6%E7%89%88RR%E7%BE%A4%E6%99%96%E5%BC%95%E5%AF%BC%2Fupdateall"
+
+# ---- TANK DOM 引导盘授权（自建镜像下载）------------------------------------
+# 只有原厂 TANK DOM USB2.0 引导 U 盘才允许从自建镜像下载。
+# 识别依据（实测）：idVendor=f400 / idProduct=f400 / manufacturer=TANK /
+# product=DOM USB2.0，并从 /sys/class/block/synoboot 追溯到引导盘对应的 USB 设备，
+# 读取其唯一 serial 作为 uid。设备不符、密钥为空或未装 openssl 时，
+# 备源直接停用（fail-closed），客户端只走 GitHub 主源。
+#
+# 【必填】与服务端 tank_dom_config.php 的 secret 完全一致。
+# 公开 fork 里不要写真实密钥，只在此文件（或私有构建配置）下发。
+# TANK_DOM_HMAC_KEY="请填入与服务端一致的密钥"
+# TANK_DOM_GUARD_ENABLED="true"
+# TANK_DOM_USB_VENDOR="f400"
+# TANK_DOM_USB_PRODUCT="f400"
+# TANK_DOM_USB_MANUFACTURER="TANK"
+# TANK_DOM_USB_MODEL="DOM USB2.0"
+#
+# 服务端还需要把序列号加入白名单 tank_dom_config.php 的 allowlist，
+# 并封掉 /ky/ 静态目录的直链访问，详见 tank-dom-guard/tank_dom_guard.php 头注释。
+
+# ---- 超时 ------------------------------------------------------------------
+# 主源被墙时，每个 HTTP 探测都要等 connect-timeout 才会降级。
+# 国内网络建议调小到 3，可明显加快「检查更新」的响应速度。
+# RRM_CONNECT_TIMEOUT="3"
+
+# ---- 自建镜像需要满足的条件 ------------------------------------------------
+# 1) 列表页可匿名 GET，文件名含 updateall-<tag>.zip（备选可放 update-<tag>.zip）。
+# 2) 下载链接支持 HEAD 与 GET，返回 200 且 Content-Type/Length 正常；
+#    支持 302 跳转（curl -L 会跟随）。建议开启 Accept-Ranges 便于断点续传。
+# 3) 版本号只用数字与点，例如 26.9.0；不要带 v 前缀以外的字符。
+# 4) 发布时间与更新日志仍从 GitHub tag 页解析，主源不可达时这两项为空，
+#    不影响版本检查与升级。
+#
+# 安全提示：下载使用 curl -k / wget --no-check-certificate（不校验 TLS 证书），
+# 存在中间人篡改升级包的风险。升级包会直接写入 bootloader 分区，
+# 建议固定证书、限制来源，并在升级前校验压缩包哈希。
+
+# ---- 维护须知：套件运行用户不可改 ------------------------------------------
+# RR 引导镜像自带的 /sbin/rrmdo 是 setuid root 程序，它把调用者的用户名与
+# 硬编码的 "sc-rr-manager" 比较，其它用户一律返回 "Unknown error"。
+# 概览、插件、驱动、硬件等所有读引导盘的接口都经 rrm_do() 提权，
+# 因此 conf/privilege 的 username 与打包脚本的 EFF_USER 必须保持
+# "sc-rr-manager"，即使 DSM 包名/显示名改了也不要跟着改。
+# 若误改：所有数据页为空，且前端因 boot 身份无法解析而每 1.6 秒无限重试，
+# 表现为「插件驱动看不到 + 页面一直刷新」。
+# DSM 7 会把 var/ 搬到 /var/packages/<包名>/var，安装脚本的
+# fix_var_ownership 会修正私有配置与 /tmp 错误日志的属主，勿删。

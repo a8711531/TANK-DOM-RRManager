@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html class="rrmHtml" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TANK DOM定制版RR管理器 Overview</title>
+    <link rel="stylesheet" href="/webman/3rdparty/tank-dom-rr-manager/style.css">
+</head>
+<body class="rrm subPage compactFlowPage" data-page="overview">
+    <main class="grid embeddedGrid overviewGrid overviewSimpleGrid compactFlow">
+        <section class="panel compactPanel">
+            <div class="panelHead">
+                <div>
+                    <h2 data-i18n="overview.deviceTitle">Device Info</h2>
+                </div>
+                <button id="refreshOverview" type="button" data-i18n="common.refresh">Refresh</button>
+            </div>
+            <div class="stats" id="overviewStats"></div>
+        </section>
+
+        <section class="panel compactPanel">
+            <div class="panelHead">
+                <div>
+                    <h2 data-i18n="overview.bootTitle">Boot Info</h2>
+                </div>
+            </div>
+            <div class="stats" id="bootStats"></div>
+        </section>
+
+        <section class="panel compactPanel">
+            <div class="panelHead">
+                <div>
+                    <h2 data-i18n="overview.authTitle">Auth Info</h2>
+                </div>
+            </div>
+            <div class="stats" id="authStats"></div>
+        </section>
+    </main>
+    <div class="toast" id="toast" hidden></div>
+    <script src="/webman/3rdparty/tank-dom-rr-manager/app.js"></script>
+</body>
+</html>

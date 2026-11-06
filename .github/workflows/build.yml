@@ -7,11 +7,11 @@
 
 name: build
 
+# Tag pushes are deliberately NOT a trigger in this fork: the published
+# artifact is the TANK DOM custom build assembled by .spk-build/build_spk.py,
+# not the vanilla spksrc package. Creating a Release tag must not start a
+# build of the upstream RR Manager. Trigger manually if it is ever needed.
 on:
-  push:
-    tags:
-      - "*"
-
   workflow_dispatch:
     inputs:
       spksrc:
@@ -55,8 +55,8 @@ jobs:
           elif [ -n "${{ inputs.version }}" ]; then
             version="${{ inputs.version }}"
           else
-            SPK_VERS=$(grep '^SPK_VERS' rr-manager/Makefile | awk -F'=' '{print $2}' | xargs)
-            SPK_REV=$(grep '^SPK_REV' rr-manager/Makefile | awk -F'=' '{print $2}' | xargs)
+            SPK_VERS=$(grep '^SPK_VERS' tank-dom-rr-manager/Makefile | awk -F'=' '{print $2}' | xargs)
+            SPK_REV=$(grep '^SPK_REV' tank-dom-rr-manager/Makefile | awk -F'=' '{print $2}' | xargs)
             version="${SPK_VERS:-1.0}${SPK_REV:+-$SPK_REV}"
           fi
 
@@ -80,7 +80,7 @@ jobs:
           ROOT_PATH="${{ github.workspace }}"
           MAKE_ARCH="arch-${{ matrix.target }}"
 
-          docker run -v ${ROOT_PATH}/spksrc:/spksrc -v ${ROOT_PATH}/rr-manager:/spksrc/spk/rr-manager -w /spksrc/spk/rr-manager ghcr.io/synocommunity/spksrc make ${MAKE_ARCH}
+          docker run -v ${ROOT_PATH}/spksrc:/spksrc -v ${ROOT_PATH}/tank-dom-rr-manager:/spksrc/spk/tank-dom-rr-manager -w /spksrc/spk/tank-dom-rr-manager ghcr.io/synocommunity/spksrc make ${MAKE_ARCH}
 
       - name: Upload to Artifacts
         uses: actions/upload-artifact@v7

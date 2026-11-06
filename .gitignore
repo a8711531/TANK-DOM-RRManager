@@ -1,5 +1,11 @@
 # Logs
 spksrc/
-rr-manager/work-*
-rr-manager/build-*
-rr-manager/status-*
+tank-dom-rr-manager/work-*
+tank-dom-rr-manager/build-*
+tank-dom-rr-manager/status-*
+
+# 私有 HMAC 密钥，禁止入库
+tank-dom-rr-manager/src/var/update-source.conf
+
+# CGI runtime log (never ship / never commit)
+tank-dom-rr-manager/src/var/api-error.log
