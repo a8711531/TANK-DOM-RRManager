@@ -48,13 +48,14 @@ RR_RELEASE_REPO_URL="${RR_RELEASE_REPO_URL:-https://github.com/RROrg/rr}"
 RR_RELEASE_LATEST_URL="${RR_RELEASE_LATEST_URL:-${RR_RELEASE_REPO_URL}/releases/latest}"
 RR_RELEASE_DOWNLOAD_BASE_URL="${RR_RELEASE_DOWNLOAD_BASE_URL:-${RR_RELEASE_REPO_URL}/releases/download}"
 RR_RELEASE_TAGS_URL="${RR_RELEASE_TAGS_URL:-${RR_RELEASE_REPO_URL}/tags}"
-RRM_RELEASE_REPO_URL="${RRM_RELEASE_REPO_URL:-https://github.com/RROrg/RRManager}"
+# Self-update feed for THIS custom package. It must never point at the upstream
+# RROrg/RRManager feed: that .spk is a different DSM package and would replace
+# this build. Override via update-source.conf if you publish somewhere else.
+RRM_RELEASE_REPO_URL="${RRM_RELEASE_REPO_URL:-https://github.com/a8711531/TANK-DOM-RRManager}"
 RRM_RELEASE_LATEST_URL="${RRM_RELEASE_LATEST_URL:-${RRM_RELEASE_REPO_URL}/releases/latest}"
 RRM_RELEASE_DOWNLOAD_BASE_URL="${RRM_RELEASE_DOWNLOAD_BASE_URL:-${RRM_RELEASE_REPO_URL}/releases/download}"
-# Self-update .spk name prefix. The custom build is a DIFFERENT DSM package
-# than upstream RR Manager, so point RRM_RELEASE_REPO_URL at your own release
-# repo (or disable self-update) - installing the upstream .spk would replace
-# this custom build.
+# Self-update .spk name prefix. Release tags must be plain version strings
+# (e.g. 4.0-8) and assets named <prefix><tag>.spk.
 RRM_RELEASE_ASSET_PREFIX="${RRM_RELEASE_ASSET_PREFIX:-tank-dom-rr-manager_noarch-dsm7_}"
 PRERELEASE="${PRERELEASE:-false}"
 

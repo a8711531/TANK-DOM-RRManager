@@ -19,9 +19,12 @@
 #   <ROOT>/releases/download/<tag>/  下载升级包
 #   <ROOT>/tags                     预发布版本列表
 # RR_RELEASE_REPO_URL="https://github.com/RROrg/rr"
-# RRM_RELEASE_REPO_URL="https://github.com/RROrg/RRManager"
-# 注意：定制版与上游是不同的 DSM 套件，自更新必须指向你自己的发布仓库，
-# 否则会把原版 RR Manager 装上来覆盖定制版。默认资产名前缀可改：
+# 套件自更新默认已指向本定制版发布仓库
+# (https://github.com/a8711531/TANK-DOM-RRManager)，无需配置即可「检查更新」。
+# 若要改到其它发布仓库，取消下行注释并替换地址：
+# RRM_RELEASE_REPO_URL="https://github.com/<账号>/<仓库>"
+# 注意：切勿填回上游 RROrg/RRManager，那会把原版 RR Manager 装上来覆盖定制版。
+# 默认资产名前缀可改：
 # RRM_RELEASE_ASSET_PREFIX="tank-dom-rr-manager_noarch-dsm7_"
 # 也可单独覆盖某个端点（目录结构与 GitHub 不一致时）：
 # RR_RELEASE_LATEST_URL="https://mirror.example.com/rr/releases/latest"
